@@ -449,7 +449,7 @@ export function Settings() {
             ></InputRange>
           </ListItem>
 
-          <ListItem
+          {/* <ListItem
             title={Locale.Settings.SendPreviewBubble.Title}
             subTitle={Locale.Settings.SendPreviewBubble.SubTitle}
           >
@@ -480,7 +480,7 @@ export function Settings() {
                 )
               }
             ></input>
-          </ListItem>
+          </ListItem> */}
         </List>
 
         <List>
