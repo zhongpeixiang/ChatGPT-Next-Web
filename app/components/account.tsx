@@ -39,12 +39,21 @@ import Locale, {
 } from "../locales";
 import { copyToClipboard } from "../utils";
 import Link from "next/link";
-import { Path, UPDATE_URL } from "../constant";
+import { Path, SERVER_URL } from "../constant";
 import { Prompt, SearchService, usePromptStore } from "../store/prompt";
 import { ErrorBoundary } from "./error";
 import { InputRange } from "./input-range";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarPicker } from "./emoji";
+
+interface UserConfig {
+  avatar: string;
+  fontSize: number;
+  sidebarWidth: number;
+  submitKey: string;
+  theme: string;
+  tightBorder: boolean;
+}
 
 interface LoginModalProps {
   setShowRegisterModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -64,6 +73,10 @@ function UserLoginModal(props: LoginModalProps) {
   // Account states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const config = useAppConfig();
+  const updateConfig = config.update;
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -73,9 +86,37 @@ function UserLoginModal(props: LoginModalProps) {
     setPassword(event.target.value);
   };
 
-  const handleLogin = () => {
+  async function handleLogin() {
     // Handle login logic here
-  };
+    if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address");
+    } else {
+      console.log(email);
+      console.log(password);
+      const response = await fetch(`${SERVER_URL}/api/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        console.log("User logged in successfully!");
+        updateConfig((config) => {
+          config.avatar = data.config.avatar;
+          config.fontSize = data.config.fontSize;
+          config.sidebarWidth = data.config.sidebarWidth;
+          config.submitKey = data.config.submitKey;
+          config.theme = data.config.theme;
+          config.tightBorder = data.config.tightBorder;
+        });
+      } else {
+        console.error("Error logging in user:", data.error);
+      }
+    }
+  }
 
   const handleRegister = () => {
     props.onClose?.();
@@ -93,7 +134,7 @@ function UserLoginModal(props: LoginModalProps) {
             <label htmlFor="email">{Locale.Account.Login.Email}</label>
             <input
               type="email"
-              id="email"
+              className={styles["user-modal-email"]}
               value={email}
               onChange={handleEmailChange}
               required
@@ -101,7 +142,6 @@ function UserLoginModal(props: LoginModalProps) {
             <label htmlFor="password">{Locale.Account.Login.Password}</label>
             <input
               type="password"
-              id="password"
               value={password}
               onChange={handlePasswordChange}
               required
@@ -135,9 +175,17 @@ function UserRegisterModal(props: RegisterModalProps) {
   const [editingPromptId, setEditingPromptId] = useState<number>();
 
   // Account states
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const usernameRegex = /^[\p{L}0-9_]+$/u;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+
+  const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(event.target.value);
+  };
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -153,9 +201,41 @@ function UserRegisterModal(props: RegisterModalProps) {
     setConfirmPassword(event.target.value);
   };
 
-  const handleRegister = () => {
+  async function handleRegister() {
     // Handle register logic here
-  };
+    if (!usernameRegex.test(username)) {
+      alert(
+        "Please enter a valid username with letters, numbers and underscore",
+      );
+    } else if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address");
+    } else if (!passwordRegex.test(password)) {
+      alert(
+        "Please enter a valid password with at least 8 characters and containing both numbers and letters",
+      );
+    } else if (password != confirmPassword) {
+      alert("The passwords must match");
+    } else {
+      console.log(username);
+      console.log(email);
+      console.log(password);
+      console.log(confirmPassword);
+      const response = await fetch(`${SERVER_URL}/api/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        console.log("User registered successfully!");
+      } else {
+        console.error("Error registering user:", data.error);
+      }
+    }
+  }
 
   const handleLogin = () => {
     props.onClose?.();
@@ -170,10 +250,17 @@ function UserRegisterModal(props: RegisterModalProps) {
       >
         <div className={styles["user-prompt-modal"]}>
           <form>
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              value={username}
+              onChange={handleUsernameChange}
+              required
+            />
             <label htmlFor="email">{Locale.Account.Register.Email}</label>
             <input
               type="email"
-              id="email"
+              className={styles["user-modal-email"]}
               value={email}
               onChange={handleEmailChange}
               required
@@ -181,7 +268,6 @@ function UserRegisterModal(props: RegisterModalProps) {
             <label htmlFor="password">{Locale.Account.Register.Password}</label>
             <input
               type="password"
-              id="password"
               value={password}
               onChange={handlePasswordChange}
               required
@@ -191,7 +277,6 @@ function UserRegisterModal(props: RegisterModalProps) {
             </label>
             <input
               type="password"
-              id="confirmPassword"
               value={confirmPassword}
               onChange={handleConfirmPasswordChange}
               required
