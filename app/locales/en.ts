@@ -77,6 +77,31 @@ const en: RequiredLocaleType = {
     DeleteToast: "Chat Deleted",
     Revert: "Revert",
   },
+  Account: {
+    Title: "Account",
+    Login: {
+      Title: "Login",
+      Email: "Email",
+      Password: "Password",
+      Actions: {
+        Title: "Login",
+        Register: "Register",
+      },
+    },
+    Register: {
+      Title: "Register",
+      Email: "Email",
+      Password: "Password",
+      ConfirmPassword: "Confirm Password",
+      Actions: {
+        Title: "Register",
+        Login: "Login",
+      },
+    },
+    Actions: {
+      Close: "Close",
+    },
+  },
   Settings: {
     Title: "Settings",
     SubTitle: "All Settings",

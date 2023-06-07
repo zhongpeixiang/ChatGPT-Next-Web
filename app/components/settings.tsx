@@ -292,12 +292,12 @@ export function Settings() {
           <div className="window-header-main-title">
             {Locale.Settings.Title}
           </div>
-          <div className="window-header-sub-title">
+          {/* <div className="window-header-sub-title">
             {Locale.Settings.SubTitle}
-          </div>
+          </div> */}
         </div>
         <div className="window-actions">
-          <div className="window-action-button">
+          {/* <div className="window-action-button">
             <IconButton
               icon={<ClearIcon />}
               onClick={() => {
@@ -308,8 +308,8 @@ export function Settings() {
               bordered
               title={Locale.Settings.Actions.ClearAll}
             />
-          </div>
-          <div className="window-action-button">
+          </div> */}
+          {/* <div className="window-action-button">
             <IconButton
               icon={<ResetIcon />}
               onClick={() => {
@@ -320,7 +320,7 @@ export function Settings() {
               bordered
               title={Locale.Settings.Actions.ResetAll}
             />
-          </div>
+          </div> */}
           <div className="window-action-button">
             <IconButton
               icon={<CloseIcon />}
@@ -432,7 +432,7 @@ export function Settings() {
 
           <ListItem
             title={Locale.Settings.FontSize.Title}
-            subTitle={Locale.Settings.FontSize.SubTitle}
+            // subTitle={Locale.Settings.FontSize.SubTitle}
           >
             <InputRange
               title={`${config.fontSize ?? 14}px`}

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { StoreKey } from "../constant";
+import { StoreKey, SERVER_URL } from "../constant";
 
 export enum SubmitKey {
   Enter = "Enter",
@@ -155,6 +155,24 @@ export const useAppConfig = create<ChatConfigStore>()(
         const config = { ...get() };
         updater(config);
         set(() => config);
+        console.log(config);
+        // Save the updated config to the remote database
+        const configCopy = {
+          avatar: config.avatar,
+          fontSize: config.fontSize,
+          sidebarWidth: config.sidebarWidth,
+          submitKey: config.submitKey,
+          theme: config.theme,
+          tightBorder: config.tightBorder,
+        };
+        console.log(configCopy);
+        // fetch(`${SERVER_URL}/api/config`, {
+        //   method: 'POST',
+        //   body: JSON.stringify(config),
+        //   headers: {
+        //     'Content-Type': 'application/json'
+        //   }
+        // });
       },
     }),
     {

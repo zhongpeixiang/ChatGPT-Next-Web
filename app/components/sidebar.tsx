@@ -4,6 +4,7 @@ import styles from "./home.module.scss";
 
 import { IconButton } from "./button";
 import SettingsIcon from "../icons/settings.svg";
+import AccountIcon from "../icons/account.svg";
 import GithubIcon from "../icons/github.svg";
 import ChatGptIcon from "../icons/chatgpt.svg";
 import AddIcon from "../icons/add.svg";
@@ -171,6 +172,11 @@ export function SideBar(props: { className?: string }) {
           <div className={styles["sidebar-action"]}>
             <Link to={Path.Settings}>
               <IconButton icon={<SettingsIcon />} shadow />
+            </Link>
+          </div>
+          <div className={styles["sidebar-action"]}>
+            <Link to={Path.Account}>
+              <IconButton icon={<AccountIcon />} shadow />
             </Link>
           </div>
           {/* <div className={styles["sidebar-action"]}>

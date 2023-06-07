@@ -75,6 +75,31 @@ const cn = {
     DeleteToast: "已删除会话",
     Revert: "撤销",
   },
+  Account: {
+    Title: "账户",
+    Login: {
+      Title: "登陆",
+      Email: "邮箱",
+      Password: "密码",
+      Actions: {
+        Title: "登陆",
+        Register: "注册",
+      },
+    },
+    Register: {
+      Title: "注册",
+      Email: "邮箱",
+      Password: "密码",
+      ConfirmPassword: "确认密码",
+      Actions: {
+        Title: "注册",
+        Login: "登陆",
+      },
+    },
+    Actions: {
+      Close: "关闭",
+    },
+  },
   Settings: {
     Title: "设置",
     SubTitle: "设置选项",
