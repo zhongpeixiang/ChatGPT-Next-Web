@@ -96,6 +96,9 @@ const cn = {
         Login: "登陆",
       },
     },
+    Logout: {
+      Title: "登出",
+    },
     Actions: {
       Close: "关闭",
     },

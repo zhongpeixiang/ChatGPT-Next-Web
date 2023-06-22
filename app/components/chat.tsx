@@ -660,6 +660,13 @@ export function Chat() {
   const isChat = location.pathname === Path.Chat;
   const autoFocus = !isMobileScreen || isChat; // only focus in chat page
 
+  const user_id = localStorage.getItem("user_id");
+  const password = localStorage.getItem("password");
+  let loggedIn: boolean = true;
+  if (user_id === "" || password === "") {
+    loggedIn = false;
+  }
+
   useCommand({
     fill: setUserInput,
     submit: (text) => {
@@ -868,6 +875,7 @@ export function Chat() {
             onBlur={() => setAutoScroll(false)}
             rows={inputRows}
             autoFocus={autoFocus}
+            disabled={!loggedIn}
           />
           <IconButton
             icon={<SendWhiteIcon />}
@@ -875,6 +883,7 @@ export function Chat() {
             className={styles["chat-input-send"]}
             type="primary"
             onClick={() => doSubmit(userInput)}
+            disabled={!loggedIn}
           />
         </div>
       </div>

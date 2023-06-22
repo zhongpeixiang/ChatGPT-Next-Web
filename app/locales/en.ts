@@ -98,6 +98,9 @@ const en: RequiredLocaleType = {
         Login: "Login",
       },
     },
+    Logout: {
+      Title: "Logout",
+    },
     Actions: {
       Close: "Close",
     },

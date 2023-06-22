@@ -29,6 +29,7 @@ import {
   // useUpdateStore,
   // useAccessStore,
   useAppConfig,
+  useUserAuthStore,
 } from "../store";
 
 import Locale, {
@@ -71,9 +72,12 @@ function UserLoginModal(props: LoginModalProps) {
   const [editingPromptId, setEditingPromptId] = useState<number>();
 
   // Account states
+  const userAuthStore = useUserAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const [emailError, setEmailError] = useState("");
+  const [loginError, setLoginError] = useState("");
 
   const config = useAppConfig();
   const updateConfig = config.update;
@@ -88,8 +92,11 @@ function UserLoginModal(props: LoginModalProps) {
 
   async function handleLogin() {
     // Handle login logic here
+    setEmailError("");
+    setLoginError("");
     if (!emailRegex.test(email)) {
-      alert("Please enter a valid email address");
+      // alert("Please enter a valid email address");
+      setEmailError("Please enter a valid email address");
     } else {
       console.log(email);
       console.log(password);
@@ -112,8 +119,18 @@ function UserLoginModal(props: LoginModalProps) {
           config.theme = data.config.theme;
           config.tightBorder = data.config.tightBorder;
         });
+
+        // save user info to localstorage
+        userAuthStore.updateUserId(data.user_id);
+        userAuthStore.updatePassword(data.password);
+        // localStorage.setItem("user_id", data.user_id);
+        // localStorage.setItem("password", data.password);
+
+        props.onClose?.();
+        props.setShowRegisterModal(false);
       } else {
-        console.error("Error logging in user:", data.error);
+        // console.error("Error logging in user:", data.error);
+        setLoginError("Invalid email or password");
       }
     }
   }
@@ -139,6 +156,9 @@ function UserLoginModal(props: LoginModalProps) {
               onChange={handleEmailChange}
               required
             />
+            {emailError != "" && (
+              <p className={styles["error-message"]}>{emailError}</p>
+            )}
             <label htmlFor="password">{Locale.Account.Login.Password}</label>
             <input
               type="password"
@@ -146,6 +166,9 @@ function UserLoginModal(props: LoginModalProps) {
               onChange={handlePasswordChange}
               required
             />
+            {loginError != "" && (
+              <p className={styles["error-message"]}>{loginError}</p>
+            )}
             <button type="button" onClick={handleLogin}>
               {Locale.Account.Login.Actions.Title}
             </button>
@@ -182,6 +205,12 @@ function UserRegisterModal(props: RegisterModalProps) {
   const usernameRegex = /^[\p{L}0-9_]+$/u;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+  const [usernameError, setUsernameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [registerError, setRegisterError] = useState("");
+  const [registerSuccess, setRegisterSuccess] = useState("");
 
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value);
@@ -203,18 +232,24 @@ function UserRegisterModal(props: RegisterModalProps) {
 
   async function handleRegister() {
     // Handle register logic here
+    setUsernameError("");
+    setEmailError("");
+    setPasswordError("");
+    setConfirmPasswordError("");
+    setRegisterError("");
+    setRegisterSuccess("");
     if (!usernameRegex.test(username)) {
-      alert(
+      setUsernameError(
         "Please enter a valid username with letters, numbers and underscore",
       );
     } else if (!emailRegex.test(email)) {
-      alert("Please enter a valid email address");
+      setEmailError("Please enter a valid email address");
     } else if (!passwordRegex.test(password)) {
-      alert(
+      setPasswordError(
         "Please enter a valid password with at least 8 characters and containing both numbers and letters",
       );
     } else if (password != confirmPassword) {
-      alert("The passwords must match");
+      setConfirmPasswordError("The passwords must match");
     } else {
       console.log(username);
       console.log(email);
@@ -231,8 +266,12 @@ function UserRegisterModal(props: RegisterModalProps) {
       console.log(data);
       if (response.ok) {
         console.log("User registered successfully!");
+        setRegisterSuccess(
+          "A verification email has been sent to you, please click the link provided to complete the registration process.",
+        );
       } else {
-        console.error("Error registering user:", data.error);
+        // console.error("Error registering user:", data.error);
+        setRegisterError("Invalid email or password");
       }
     }
   }
@@ -257,6 +296,9 @@ function UserRegisterModal(props: RegisterModalProps) {
               onChange={handleUsernameChange}
               required
             />
+            {usernameError != "" && (
+              <p className={styles["error-message"]}>{usernameError}</p>
+            )}
             <label htmlFor="email">{Locale.Account.Register.Email}</label>
             <input
               type="email"
@@ -265,6 +307,9 @@ function UserRegisterModal(props: RegisterModalProps) {
               onChange={handleEmailChange}
               required
             />
+            {emailError != "" && (
+              <p className={styles["error-message"]}>{emailError}</p>
+            )}
             <label htmlFor="password">{Locale.Account.Register.Password}</label>
             <input
               type="password"
@@ -272,6 +317,9 @@ function UserRegisterModal(props: RegisterModalProps) {
               onChange={handlePasswordChange}
               required
             />
+            {passwordError != "" && (
+              <p className={styles["error-message"]}>{passwordError}</p>
+            )}
             <label htmlFor="confirmPassword">
               {Locale.Account.Register.ConfirmPassword}
             </label>
@@ -281,106 +329,20 @@ function UserRegisterModal(props: RegisterModalProps) {
               onChange={handleConfirmPasswordChange}
               required
             />
+            {confirmPasswordError != "" && (
+              <p className={styles["error-message"]}>{confirmPasswordError}</p>
+            )}
             <button type="button" onClick={handleRegister}>
               {Locale.Account.Register.Actions.Title}
             </button>
+            {registerError != "" && (
+              <p className={styles["error-message"]}>{registerError}</p>
+            )}
+            {registerSuccess != "" && (
+              <p className={styles["success-message"]}>{registerSuccess}</p>
+            )}
             <p onClick={handleLogin}>{Locale.Account.Register.Actions.Login}</p>
           </form>
-        </div>
-      </Modal>
-    </div>
-  );
-}
-
-function UserPromptModal(props: { onClose?: () => void }) {
-  const promptStore = usePromptStore();
-  const userPrompts = promptStore.getUserPrompts();
-  const builtinPrompts = SearchService.builtinPrompts;
-  const allPrompts = userPrompts.concat(builtinPrompts);
-  const [searchInput, setSearchInput] = useState("");
-  const [searchPrompts, setSearchPrompts] = useState<Prompt[]>([]);
-  const prompts = searchInput.length > 0 ? searchPrompts : allPrompts;
-
-  const [editingPromptId, setEditingPromptId] = useState<number>();
-
-  useEffect(() => {
-    if (searchInput.length > 0) {
-      const searchResult = SearchService.search(searchInput);
-      setSearchPrompts(searchResult);
-    } else {
-      setSearchPrompts([]);
-    }
-  }, [searchInput]);
-
-  return (
-    <div className="modal-mask">
-      <Modal
-        title={Locale.Settings.Prompt.Modal.Title}
-        onClose={() => props.onClose?.()}
-        actions={[
-          <IconButton
-            key="add"
-            onClick={() =>
-              promptStore.add({
-                title: "Empty Prompt",
-                content: "Empty Prompt Content",
-              })
-            }
-            icon={<AddIcon />}
-            bordered
-            text={Locale.Settings.Prompt.Modal.Add}
-          />,
-        ]}
-      >
-        <div className={styles["user-prompt-modal"]}>
-          <input
-            type="text"
-            className={styles["user-prompt-search"]}
-            placeholder={Locale.Settings.Prompt.Modal.Search}
-            value={searchInput}
-            onInput={(e) => setSearchInput(e.currentTarget.value)}
-          ></input>
-
-          <div className={styles["user-prompt-list"]}>
-            {prompts.map((v, _) => (
-              <div className={styles["user-prompt-item"]} key={v.id ?? v.title}>
-                <div className={styles["user-prompt-header"]}>
-                  <div className={styles["user-prompt-title"]}>{v.title}</div>
-                  <div className={styles["user-prompt-content"] + " one-line"}>
-                    {v.content}
-                  </div>
-                </div>
-
-                <div className={styles["user-prompt-buttons"]}>
-                  {v.isUser && (
-                    <IconButton
-                      icon={<ClearIcon />}
-                      className={styles["user-prompt-button"]}
-                      onClick={() => promptStore.remove(v.id!)}
-                    />
-                  )}
-                  {v.isUser ? (
-                    <IconButton
-                      icon={<EditIcon />}
-                      className={styles["user-prompt-button"]}
-                      onClick={() => setEditingPromptId(v.id)}
-                    />
-                  ) : (
-                    <IconButton
-                      icon={<EyeIcon />}
-                      className={styles["user-prompt-button"]}
-                      onClick={() => setEditingPromptId(v.id)}
-                    />
-                  )}
-                  <IconButton
-                    icon={<CopyIcon />}
-                    className={styles["user-prompt-button"]}
-                    onClick={() => copyToClipboard(v.content)}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </Modal>
     </div>
@@ -394,8 +356,17 @@ export function Account() {
   const updateConfig = config.update;
   const resetConfig = config.reset;
   const chatStore = useChatStore();
-  const [shouldShowLoginModal, setShowLoginModal] = useState(true);
+  const [shouldShowLoginModal, setShowLoginModal] = useState(false);
   const [shouldShowRegisterModal, setShowRegisterModal] = useState(false);
+
+  const [loggedIn, setLoggedIn] = useState(false);
+  const userAuthStore = useUserAuthStore();
+
+  if (userAuthStore.user_id === "" || userAuthStore.password === "") {
+    setShowLoginModal(true);
+  } else {
+    setLoggedIn(true);
+  }
 
   useEffect(() => {
     const keydownEvent = (e: KeyboardEvent) => {
@@ -409,6 +380,13 @@ export function Account() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleLogout = () => {
+    setLoggedIn(false);
+    userAuthStore.updateUserId("");
+    userAuthStore.updatePassword("");
+    navigate(Path.Home);
+  };
 
   return (
     <ErrorBoundary>
@@ -523,6 +501,12 @@ export function Account() {
             ></InputRange>
           </ListItem>
         </List>
+
+        {loggedIn && (
+          <button type="button" onClick={handleLogout}>
+            {Locale.Account.Logout.Title}
+          </button>
+        )}
 
         {shouldShowLoginModal && (
           <UserLoginModal

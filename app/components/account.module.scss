@@ -1,6 +1,25 @@
 .settings {
   padding: 20px;
   overflow: auto;
+  text-align: center;
+
+  button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+    max-width: 300px;
+    
+  
+    &:hover {
+      background-color: #0058c5;
+    }
+  }
 }
 
 .avatar {
@@ -92,6 +111,14 @@
 
   .user-modal-email {
     max-width: 280px;
+  }
+
+  .error-message {
+    color: red;
+  }
+
+  .success-message {
+    color: green;
   }
 
   button {
