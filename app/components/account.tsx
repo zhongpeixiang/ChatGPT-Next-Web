@@ -32,20 +32,13 @@ import {
   useUserAuthStore,
 } from "../store";
 
-import Locale, {
-  AllLangs,
-  ALL_LANG_OPTIONS,
-  changeLang,
-  getLang,
-} from "../locales";
+import Locale from "../locales";
 import { copyToClipboard } from "../utils";
 import Link from "next/link";
 import { Path, SERVER_URL } from "../constant";
 import { Prompt, SearchService, usePromptStore } from "../store/prompt";
 import { ErrorBoundary } from "./error";
-import { InputRange } from "./input-range";
 import { useNavigate } from "react-router-dom";
-import { Avatar, AvatarPicker } from "./emoji";
 
 interface UserConfig {
   avatar: string;
@@ -135,7 +128,7 @@ function UserLoginModal(props: LoginModalProps) {
     }
   }
 
-  const handleRegister = () => {
+  const handleRegisterRedirect = () => {
     props.onClose?.();
     props.setShowRegisterModal(true);
   };
@@ -172,7 +165,7 @@ function UserLoginModal(props: LoginModalProps) {
             <button type="button" onClick={handleLogin}>
               {Locale.Account.Login.Actions.Title}
             </button>
-            <p onClick={handleRegister}>
+            <p onClick={handleRegisterRedirect}>
               {Locale.Account.Login.Actions.Register}
             </p>
           </form>
@@ -276,9 +269,9 @@ function UserRegisterModal(props: RegisterModalProps) {
     }
   }
 
-  const handleLogin = () => {
+  const handleLoginRedirect = () => {
     props.onClose?.();
-    props.setShowLoginModal(true);
+    // props.setShowLoginModal(true);
   };
 
   return (
@@ -341,7 +334,9 @@ function UserRegisterModal(props: RegisterModalProps) {
             {registerSuccess != "" && (
               <p className={styles["success-message"]}>{registerSuccess}</p>
             )}
-            <p onClick={handleLogin}>{Locale.Account.Register.Actions.Login}</p>
+            <p onClick={handleLoginRedirect}>
+              {Locale.Account.Register.Actions.Login}
+            </p>
           </form>
         </div>
       </Modal>
@@ -356,17 +351,12 @@ export function Account() {
   const updateConfig = config.update;
   const resetConfig = config.reset;
   const chatStore = useChatStore();
-  const [shouldShowLoginModal, setShowLoginModal] = useState(false);
-  const [shouldShowRegisterModal, setShowRegisterModal] = useState(false);
-
-  const [loggedIn, setLoggedIn] = useState(false);
   const userAuthStore = useUserAuthStore();
-
-  if (userAuthStore.user_id === "" || userAuthStore.password === "") {
-    setShowLoginModal(true);
-  } else {
-    setLoggedIn(true);
-  }
+  const userAuth = userAuthStore.get();
+  const isLoggedIn = userAuth["user_id"] != "" && userAuth["password"] != "";
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(!isLoggedIn);
+  const [loggedIn, setLoggedIn] = useState(isLoggedIn);
 
   useEffect(() => {
     const keydownEvent = (e: KeyboardEvent) => {
@@ -383,8 +373,8 @@ export function Account() {
 
   const handleLogout = () => {
     setLoggedIn(false);
-    userAuthStore.updateUserId("");
-    userAuthStore.updatePassword("");
+    // userAuthStore.updateUserId("");
+    // userAuthStore.updatePassword("");
     navigate(Path.Home);
   };
 
@@ -409,112 +399,20 @@ export function Account() {
         </div>
       </div>
       <div className={styles["settings"]}>
-        <List>
-          <ListItem title={Locale.Settings.Avatar}>
-            <Popover
-              onClose={() => setShowEmojiPicker(false)}
-              content={
-                <AvatarPicker
-                  onEmojiClick={(avatar: string) => {
-                    updateConfig((config) => (config.avatar = avatar));
-                    setShowEmojiPicker(false);
-                  }}
-                />
-              }
-              open={showEmojiPicker}
-            >
-              <div
-                className={styles.avatar}
-                onClick={() => setShowEmojiPicker(true)}
-              >
-                <Avatar avatar={config.avatar} />
-              </div>
-            </Popover>
-          </ListItem>
-
-          <ListItem title={Locale.Settings.SendKey}>
-            <Select
-              value={config.submitKey}
-              onChange={(e) => {
-                updateConfig(
-                  (config) =>
-                    (config.submitKey = e.target.value as any as SubmitKey),
-                );
-              }}
-            >
-              {Object.values(SubmitKey).map((v) => (
-                <option value={v} key={v}>
-                  {v}
-                </option>
-              ))}
-            </Select>
-          </ListItem>
-
-          <ListItem title={Locale.Settings.Theme}>
-            <Select
-              value={config.theme}
-              onChange={(e) => {
-                updateConfig(
-                  (config) => (config.theme = e.target.value as any as Theme),
-                );
-              }}
-            >
-              {Object.values(Theme).map((v) => (
-                <option value={v} key={v}>
-                  {v}
-                </option>
-              ))}
-            </Select>
-          </ListItem>
-
-          <ListItem title={Locale.Settings.Lang.Name}>
-            <Select
-              value={getLang()}
-              onChange={(e) => {
-                changeLang(e.target.value as any);
-              }}
-            >
-              {AllLangs.map((lang) => (
-                <option value={lang} key={lang}>
-                  {ALL_LANG_OPTIONS[lang]}
-                </option>
-              ))}
-            </Select>
-          </ListItem>
-
-          <ListItem
-            title={Locale.Settings.FontSize.Title}
-            // subTitle={Locale.Settings.FontSize.SubTitle}
-          >
-            <InputRange
-              title={`${config.fontSize ?? 14}px`}
-              value={config.fontSize}
-              min="12"
-              max="18"
-              step="1"
-              onChange={(e) =>
-                updateConfig(
-                  (config) =>
-                    (config.fontSize = Number.parseInt(e.currentTarget.value)),
-                )
-              }
-            ></InputRange>
-          </ListItem>
-        </List>
-
         {loggedIn && (
           <button type="button" onClick={handleLogout}>
             {Locale.Account.Logout.Title}
           </button>
         )}
 
-        {shouldShowLoginModal && (
+        {showLoginModal && (
           <UserLoginModal
             onClose={() => setShowLoginModal(false)}
             setShowRegisterModal={setShowRegisterModal}
           />
         )}
-        {shouldShowRegisterModal && (
+
+        {showRegisterModal && (
           <UserRegisterModal
             onClose={() => setShowRegisterModal(false)}
             setShowLoginModal={setShowLoginModal}

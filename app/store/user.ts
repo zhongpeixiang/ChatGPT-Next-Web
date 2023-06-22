@@ -5,8 +5,10 @@ export interface UserAuthStore {
   user_id: string;
   password: string;
 
-  updateUserId: (_: string) => void;
-  updatePassword: (_: string) => void;
+  get: () => any;
+  set: (user_id: string, password: string) => void;
+  updateUserId: (user_id: string) => void;
+  updatePassword: (password: string) => void;
 }
 
 export const useUserAuthStore = create<UserAuthStore>()(
@@ -15,6 +17,18 @@ export const useUserAuthStore = create<UserAuthStore>()(
       user_id: "",
       password: "",
 
+      get() {
+        return {
+          user_id: get()["user_id"],
+          password: get()["password"],
+        };
+      },
+      set(user_id: string, password: string) {
+        set(() => ({
+          user_id: user_id,
+          password: password,
+        }));
+      },
       updateUserId(user_id: string) {
         set(() => ({ user_id }));
       },
